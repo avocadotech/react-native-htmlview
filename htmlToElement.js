@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import htmlparser from 'htmlparser2-without-node-native';
 import entities from 'entities';
 
@@ -37,7 +37,11 @@ const Img = props => {
 };
 
 function searchForImg(node) {
-  if (node.children && node.children.length) return searchForImg(node.children[0])
+  if (node.children && node.children.length) {
+    return node.children
+      .map(item => searchForImg(item))
+      .some(item => item);
+  }
   else {
     return node.name === 'img'
   }
@@ -152,7 +156,11 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
         const {NodeComponent, styles} = opts;
 
         if (searchForImg(node)) {
-          return domToElement(node.children, node);
+          return (
+            <View key={index}>
+              {domToElement(node.children, node)}
+            </View>
+          )
         }
 
         return (
