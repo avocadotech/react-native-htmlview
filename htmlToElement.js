@@ -36,6 +36,13 @@ const Img = props => {
   return <AutoSizedImage source={source} style={imgStyle} />;
 };
 
+function searchForImg(node) {
+  if (node.children && node.children.length) return searchForImg(node.children[0])
+  else {
+    return node.name === 'img'
+  }
+}
+
 export default function htmlToElement(rawHtml, customOpts = {}, done) {
   const opts = {
     ...defaultOpts,
@@ -46,7 +53,7 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
     if (!parent) return null;
     const style = StyleSheet.flatten(opts.styles[parent.name]) || {};
     const parentStyle = inheritedStyle(parent.parent) || {};
-    return {...parentStyle, ...style};
+    return {...style};
   }
 
   function domToElement(dom, parent) {
@@ -143,6 +150,10 @@ export default function htmlToElement(rawHtml, customOpts = {}, done) {
         }
 
         const {NodeComponent, styles} = opts;
+
+        if (searchForImg(node)) {
+          return domToElement(node.children, node);
+        }
 
         return (
           <NodeComponent
